@@ -1,0 +1,45 @@
+const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const base = process.env.SMOKE_TEST_URL || 'http://127.0.0.1:5173';
+(async()=>{
+const browser=await chromium.launch({headless:true, channel:"msedge"});
+const page=await browser.newPage({viewport:{width:1440,height:1000}});
+const errors=[];page.on('pageerror', e=>errors.push(e.message));
+await page.goto(`${base}/`);
+await page.getByRole('heading',{name:'Votre voix compte.'}).waitFor();
+await page.screenshot({path:'preview-desktop.png',fullPage:true});
+await page.getByRole('button',{name:'Études & pédagogie',exact:true}).click();
+await page.getByLabel('Un titre pour votre expérience').fill('Une bibliothèque ouverte plus tard');
+await page.getByLabel('Décrivez la difficulté rencontrée').fill('La bibliothèque ferme trop tôt pour les étudiants qui ont des cours le soir.');
+await page.getByLabel('Votre solution proposée').fill('Étendre les horaires pendant les examens.');
+await page.getByRole('checkbox').check();
+await page.getByRole('button',{name:'Envoyer ma contribution'}).click();
+await page.getByRole('heading',{name:'Merci d’avoir pris la parole.'}).waitFor();
+await page.getByRole('button',{name:'Espace administrateur'}).click();
+await page.getByRole('button',{name:'Une bibliothèque ouverte plus tard'}).waitFor();
+await page.getByRole('button',{name:'Une bibliothèque ouverte plus tard'}).click();
+await page.getByLabel('Suivi de la contribution').selectOption('Résolu');
+await page.getByRole('button',{name:'Fermer',exact:true}).click();
+await page.getByRole('textbox',{name:'Rechercher une contribution'}).fill('bibliothèque');
+if(await page.locator('tbody tr').count()!==1) throw Error('Search failed');
+await page.getByLabel('Filtrer par statut').selectOption('Résolu');
+if(await page.locator('tbody tr').count()!==1) throw Error('Status persistence failed');
+const download=page.waitForEvent('download');await page.getByRole('button',{name:'Exporter CSV'}).click();
+if((await download).suggestedFilename()!=='campus-contributions.csv')throw Error('CSV failed');
+await page.getByRole('textbox',{name:'Rechercher une contribution'}).fill('');
+await page.getByLabel('Filtrer par statut').selectOption('Tous');
+await page.screenshot({path:'preview-admin.png',fullPage:true});
+await page.goto(`${base}/#partager`);
+await page.setViewportSize({width:375,height:812});
+await page.screenshot({path:'preview-mobile.png',fullPage:true});
+const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
+if(overflow)throw Error('Mobile overflow');
+await page.getByRole('button',{name:'Comment ça marche ?'}).count();
+await page.getByRole('button',{name:'Confidentialité & anonymat'}).click();
+await page.keyboard.press('Escape');
+if(await page.getByRole('dialog').count()) throw Error('Escape modal failed');
+if(errors.length)throw Error(errors.join('\n'));
+console.log('PASS: form submission, admin detail, status, search, filter, CSV, mobile overflow, modal Escape; no runtime errors.');
+await browser.close();
+})().catch(e=>{console.error(e);process.exit(1)});
+
+
