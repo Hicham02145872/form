@@ -50,7 +50,7 @@ Le formulaire étudiant reste public. Les politiques RLS de `supabase/schema.sql
 
 ## Fonctionnalités
 
-- Formulaire anonyme : six catégories, difficulté, impact et solution facultative.
+- Formulaire anonyme : sujet Études & pédagogie, difficulté, impact et solution facultative.
 - Validation, consentement, confirmation et conservation du texte en cas d’échec.
 - Authentification administrateur Supabase et contrôle des droits côté base.
 - Compteurs, répartition par sujet et impact, recherche et filtre de statut.
