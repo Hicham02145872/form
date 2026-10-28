@@ -55,7 +55,7 @@ Le formulaire étudiant reste public. Les politiques RLS de `supabase/schema.sql
 - Authentification administrateur Supabase et contrôle des droits côté base.
 - Compteurs, répartition par sujet et impact, recherche et filtre de statut.
 - Consultation détaillée, statuts Nouveau / En cours / Résolu, export CSV filtré.
-- Interface en français, responsive, navigation au clavier et réduction des animations.
+- Interface en français et en arabe (sélecteur mémorisé, mise en page RTL), responsive, navigation au clavier et réduction des animations.
 
 ## Avant une ouverture publique
 

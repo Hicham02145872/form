@@ -1,3 +1,4 @@
+import { useLanguage } from './i18n';
 import { Fragment, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ChevronLeft, LockKeyhole } from 'lucide-react';
@@ -8,6 +9,7 @@ type Access = 'checking' | 'signed-out' | 'denied' | 'error' | 'admin';
 // Mount protected content only after both identity and database membership are verified.
 // RLS remains the authority for every data request; this guard controls the UI.
 export function AdminRoute({ children }: { children: ReactNode }) {
+  const { t } = useLanguage();
   const [access, setAccess] = useState<Access>('checking');
   const [userId, setUserId] = useState('');
   const [email, setEmail] = useState('');
@@ -93,12 +95,12 @@ export function AdminRoute({ children }: { children: ReactNode }) {
 
   if (!supabase) {
     if (demoEnabled) return <>{children}</>;
-    return <main className="login-page"><div className="login-card"><h1>Administration indisponible.</h1><p>La connexion sécurisée doit être configurée avant d’accéder à cet espace.</p><a href="#partager">Retour à l’espace étudiant</a></div></main>;
+    return <main className="login-page"><div className="login-card"><h1>{t("Administration indisponible.")}</h1><p>{t("La connexion sécurisée doit être configurée avant d’accéder à cet espace.")}</p><a href="#partager">{t("Retour à l’espace étudiant")}</a></div></main>;
   }
-  if (access === 'checking') return <main className="student-main"><p role="status">Vérification de votre accès…</p></main>;
+  if (access === 'checking') return <main className="student-main"><p role="status">{t("Vérification de votre accès…")}</p></main>;
   if (access === 'admin') return <Fragment key={userId}>{children}</Fragment>;
-  return <main className="login-page"><div className="login-card"><span className="trust-icon"><LockKeyhole size={26}/></span><span className="eyebrow">CAMPUS ÉCOUTE · ADMINISTRATION</span>
-    {access === 'signed-out' ? <><h1>Heureux de vous revoir.</h1><p>Connectez-vous pour écouter, comprendre et agir.</p><form onSubmit={login}><label htmlFor="email">Adresse e-mail</label><input id="email" type="email" autoComplete="username" required value={email} onChange={e => setEmail(e.target.value)}/><label htmlFor="password">Mot de passe</label><input id="password" type="password" autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)}/><button className="primary" disabled={busy}>{busy ? 'Connexion…' : 'Se connecter'}</button></form></> : <><h1>{access === 'denied' ? 'Accès réservé.' : 'Vérification indisponible.'}</h1><p>{access === 'denied' ? 'Ce compte ne possède pas les droits administrateur.' : 'Impossible de vérifier vos droits. Veuillez réessayer.'}</p><button className="primary" disabled={busy} onClick={() => { setAccess('checking'); setRetry(value => value + 1); }}>Réessayer</button><button className="secondary" disabled={busy} onClick={() => void signOut()}>Se déconnecter</button></>}
-    {error && <p className="error" role="alert">{error}</p>}<a href="#partager"><ChevronLeft size={15}/> Retour à l’espace étudiant</a>
+  return <main className="login-page"><div className="login-card"><span className="trust-icon"><LockKeyhole size={26}/></span><span className="eyebrow">{t("CAMPUS ÉCOUTE · ADMINISTRATION")}</span>
+    {access === 'signed-out' ? <><h1>{t("Heureux de vous revoir.")}</h1><p>{t("Connectez-vous pour écouter, comprendre et agir.")}</p><form onSubmit={login}><label htmlFor="email">{t("Adresse e-mail")}</label><input id="email" dir="ltr" type="email" autoComplete="username" required value={email} onChange={e => setEmail(e.target.value)}/><label htmlFor="password">{t("Mot de passe")}</label><input id="password" type="password" autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)}/><button className="primary" disabled={busy}>{busy ? t("Connexion…") : t("Se connecter")}</button></form></> : <><h1>{access === 'denied' ? t("Accès réservé.") : t("Vérification indisponible.")}</h1><p>{access === 'denied' ? t("Ce compte ne possède pas les droits administrateur.") : t("Impossible de vérifier vos droits. Veuillez réessayer.")}</p><button className="primary" disabled={busy} onClick={() => { setAccess('checking'); setRetry(value => value + 1); }}>{t("Réessayer")}</button><button className="secondary" disabled={busy} onClick={() => void signOut()}>{t("Se déconnecter")}</button></>}
+    {error && <p className="error" role="alert">{t(error)}</p>}<a href="#partager"><ChevronLeft size={15}/> {t("Retour à l’espace étudiant")}</a>
   </div></main>;
 }
